@@ -1,0 +1,10 @@
+https://docs.mongodb.com/manual/aggregation/
+https://docs.mongodb.com/manual/reference/operator/aggregation/match/
+https://docs.mongodb.com/manual/reference/operator/aggregation/project/
+https://docs.mongodb.com/manual/reference/operator/aggregation/concat/#exp._S_concat
+
+Create a SQL query to return next data ordered by city and then by name:
+
+| Employy Id | Employee Full Name | Title | City |
+
+[Employee Full Name] - First Name and Last Name.
