@@ -1,3 +1,25 @@
 Create a SQL query to return the total number of orders for every month in 1997 year:
 
 | January | February | March | April | May | June | July | August | September | November | December |
+
+db.orders.aggregate([
+    { $match: { OrderDate: {$gte: "1997-01-01 00:00:00.000", $lt: "1998-01-01 00:00:00.000" } } },
+    { $group: { 
+        _id: 0,
+        January: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 1 ] }, 1, 0 ] } },
+        February: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 2 ] }, 1, 0 ] } },
+        March: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 3 ] }, 1, 0 ] } },
+        April: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 4 ] }, 1, 0 ] } },
+        May: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 5 ] }, 1, 0 ] } },
+        June: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 6 ] }, 1, 0 ] } },
+        July: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 7 ] }, 1, 0 ] } },
+        August: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 8 ] }, 1, 0 ] } },
+        September: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 9 ] }, 1, 0 ] } },
+        October: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 10 ] }, 1, 0 ] } },
+        November: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 11 ] }, 1, 0 ] } },
+        December: { $sum: { $cond: [ { $eq: [ { $month: {$toDate: '$OrderDate'} }, 12 ] }, 1, 0 ] } }, 
+    }},
+    { $project: {
+        _id: 0
+    }}
+])
