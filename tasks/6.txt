@@ -5,15 +5,21 @@ Create a query to return all products with category and supplier company names:
 db.products.aggregate([
     { $lookup: {
         from: 'categories',
-        localField: 'CategoryID',
-        foreignField: 'CategoryID',
+        let: { catId : '$CategoryID' },
+        pipeline: [
+            { $match: { $expr: { $eq: [ '$CategoryID' , '$$catId' ] } } },
+            { $project: { _id:0, CategoryName: 1,  }}
+        ],
         as: 'cat',
     }},
     { $unwind: '$cat'},
     { $lookup: {
         from: 'suppliers',
-        localField: 'SupplierID',
-        foreignField: 'SupplierID',
+        let: {supId: '$SupplierID'},
+        pipeline: [
+            { $match: { $expr: { $eq: [ '$SupplierID' , '$$supId' ] } } },
+            { $project: { _id:0, CompanyName: 1 } }
+        ],
         as: 'sup',
     }},
     { $unwind: '$sup'},
