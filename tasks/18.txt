@@ -1,3 +1,12 @@
 Create a SQL query to calcualte total orders count by each day in 1998:
 
 | Order Date | Total Number of Orders |
+
+db.orders.aggregate([
+    { $match: { OrderDate: {$gte: '1998-01-01 00:00:00.000', $lt: '1999-01-01 00:00:00.000' } } },
+    { $group: {
+        _id: { $dayOfYear: { $toDate: '$OrderDate'} }, 
+        'Total Number of Orders': { $sum: 1 }
+    }},
+    { $sort: { _id: -1 }}
+])
