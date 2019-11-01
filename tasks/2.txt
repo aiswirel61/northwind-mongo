@@ -11,11 +11,12 @@ db.getCollection('order-details').aggregate([
         'qtds' : { $sum: {$multiply: [ "$Quantity", "$Discount" ] } }
     }},
     {$project: {
-        'Order ID': 1,
+        _id:0,
+        'Order ID': '$_id',
         'Order Total Price': 1,
         'Total Order Discount, %': {
             $divide: [{ $multiply: [100, '$qtds' ] }, "$Order Total Price"]
         }
     }},
-    { $sort: { _id: -1 } }
+    { $sort: { 'Order ID': -1 } }
 ])
