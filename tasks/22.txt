@@ -1,3 +1,47 @@
 Create a SQL query to display the name of each customer along with their most expensive purchased product:
 
 | CompanyName | ProductName | PricePerItem |
+
+db.customers.aggregate([
+    { $lookup: {
+        from: 'orders',
+        let: {cId: '$CustomerID'},
+        pipeline: [
+            { $match: { $expr: { $eq: ['$CustomerID', '$$cId'] } }},
+            { $project: {_id:0, OrderID: 1}}
+        ],
+        as: 'orders'
+    }},
+    { $unwind: '$orders' },
+    { $lookup: {
+        from: 'order-details',
+        let: {oId: '$orders.OrderID'},
+        pipeline: [
+            { $match: { $expr: { $eq: ['$OrderID', '$$oId'] } }},
+            { $project: {_id:0, ProductID: 1, UnitPrice: 1}}
+        ],
+        as: 'order_details'
+    }},
+    { $unwind: '$order_details' },
+    { $lookup: {
+        from: 'products',
+        let: {pId: '$order_details.ProductID'},
+        pipeline: [
+            { $match: { $expr: { $eq: ['$ProductID', '$$pId'] } }},
+            { $project: {_id:0, ProductID: 1, UnitPrice: 1, ProductName:1}}
+        ],
+        as: 'products'
+    }},
+    { $unwind: '$products' },
+    { $group: {
+        _id: { CompanyName: '$CompanyName', ProductName: '$products.ProductName' },
+        PricePerItem: { $max: '$order_details.UnitPrice' }
+    }},
+    { $sort: { PricePerItem: -1 } },
+    { $project: {
+        _id: 0,
+        CompanyName:'$_id.CompanyName',
+        ProductName: '$_id.ProductName',
+        PricePerItem: 'PricePerItem'
+    }}
+])
