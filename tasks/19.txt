@@ -2,3 +2,32 @@ Create a SQL query to display customer details whose total orders amount is more
 
 | CustomerId | CompanyName | TotalOrdersAmount, $ |
 
+db.getCollection('order-details').aggregate([
+    { $match : { $expr : { $gt : [{ $multiply: ['$UnitPrice', '$Quantity'] } , 10000 ]  } } },
+    { $lookup: {
+        from: 'orders',
+        let: { oId : '$OrderID' },
+        pipeline: [
+            { $match: { $expr: { $eq: ['$OrderID', '$$oId'] } } },
+            { $project: { _id:0, CustomerID: 1 } }
+        ],
+        as: 'orders'
+    }},
+    { $unwind: '$orders'},
+    { $lookup: {
+        from: 'customers',
+        let: { cID : '$orders.CustomerID' },
+        pipeline: [
+            { $match: { $expr: { $eq: ['$CustomerID','$$cID'] } } },
+            { $project: { _id:0, CustomerID: 1, CompanyName: 1} }
+        ],
+        as: 'customers'
+    }},
+    { $unwind: '$customers'},
+    { $project: {
+        _id:0,
+        CustomerId : '$customers.CustomerID',
+        CompanyName : '$customers.CompanyName',
+        'TotalOrdersAmount, $' : { $multiply: ['$UnitPrice', '$Quantity'] }
+    }}
+])
