@@ -1,3 +1,32 @@
 Create a SQL query to find the employee that sold products for the largest amount:
 
 | EmployeeId | Employee Full Name | Amount, $ |
+
+db.employees.aggregate([
+    { $lookup: {
+        from: 'orders',
+        let: { eId : '$EmployeeID' },
+        pipeline: [
+            { $match: { $expr: { $eq: ['$EmployeeID', '$$eId'] } } },
+            { $project: { _id:0, OrderID: 1 } }
+        ],
+        as: 'orders'
+    }},
+    { $unwind: '$orders'},
+    { $lookup: {
+        from: 'order-details',
+        let: { oID : '$orders.OrderID' },
+        pipeline: [
+            { $match: { $expr: { $eq: ['$OrderID','$$oID'] } } },
+            { $project: { _id:0, UnitPrice: 1, Quantity: 1} }
+        ],
+        as: 'order_details'
+    }},
+    { $unwind: '$order_details'},
+    { $group: { 
+        _id: { EmployeeID: "$EmployeeID", FullName: { $concat: ["$FirstName", " ", "$LastName"] } }, 
+        'Amount, $': { $sum: { $multiply: [ '$order_details.UnitPrice', '$order_details.Quantity' ] } }
+    }},
+    { $sort: { 'Amount, $': -1 } },
+    { $limit: 1 }
+])
