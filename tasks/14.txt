@@ -3,12 +3,11 @@ Create a SQL query to get Product list of stock is less than the quantity on ord
 | ProductName | UnitsInOrder| UnitsInStock |
 
 db.products.aggregate([
+    { $match : { $expr : { $gt : ['$UnitsOnOrder' , '$UnitsInStock' ]  } } },
     { $project: {
+        _id:0,
         ProductName: 1,
         UnitsOnOrder: 1,
-        UnitsInStock: 1, 
-        check: {$gt: ["$UnitsOnOrder", "$UnitsInStock"]}
+        UnitsInStock: 1,
     }},
-    { $match : { check: true }},
-    { $project: { check: 0, _id: 0 }}
 ])
