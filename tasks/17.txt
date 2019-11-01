@@ -1,3 +1,20 @@
 Create SQL query to display the average price of each categories's products:
 
 | CategoryName | AvgPrice |
+
+db.categories.aggregate([
+    { $lookup: {
+        from: 'products',
+        let: { catId: '$CategoryID'},
+        pipeline: [
+            {$match: { $expr: { $eq: ['$CategoryID', '$$catId'] } } },
+            {$project: { _id:0, UnitPrice: 1 } }
+        ],
+        as: "products"
+    }},
+    { $project: {
+        _id: 0,
+        CategoryName:1, 
+        AvgPrice: { $avg: "$products.UnitPrice" }
+    }}
+])
