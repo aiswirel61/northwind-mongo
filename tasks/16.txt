@@ -1,3 +1,14 @@
 Create a SQL query to return all orders where ship postal code is provided:
 
 | OrderId | CustomerId | ShipCountry |
+
+db.orders.aggregate([
+    { $match: { ShipPostalCode: { $ne: null } }},
+    { $project: {
+        _id:false,
+        OrderID: 1,
+        CustomerID: 1,
+        ShipCountry: 1,
+        ShipPostalCode: 1
+    }}
+])
